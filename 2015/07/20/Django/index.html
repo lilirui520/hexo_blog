@@ -4,14 +4,14 @@
 <head>
   <meta charset="UTF-8">
   
-    <title>milo&#39;s  blog</title>
+    <title>Django 部署(nginx) | milo&#39;s  blog</title>
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=3, minimum-scale=1">
     
     <meta name="author" content="milo">
     
-    <meta name="description" content="title: Django 部署(nginx)
-Django 部署(nginx)1. 运行开发服务器测试cd zqxt # 进入项目 zqxt 目录python manage.py runserver运行开发服务器测试，确保开发服务器下能正常打开网站。
-2. 安装 nginx 和 需要的包2.1 安">
+    <meta name="description" content="Django 部署(nginx)1. 运行开发服务器测试cd zqxt # 进入项目 zqxt 目录python manage.py runserver运行开发服务器测试，确保开发服务器下能正常打开网站。
+2. 安装 nginx 和 需要的包2.1 安装 nginx 等软件
+ubuntu / Lin">
     
     
     
@@ -67,15 +67,15 @@ Django 部署(nginx)1. 运行开发服务器测试cd zqxt # 进入项目 zqxt �
 		<header class="article-info clearfix">
   <h1 itemprop="name">
     
-      <a href="/2015/07/20/Django/" title="" itemprop="url"></a>
+      <a href="/2015/07/20/Django/" title="Django 部署(nginx)" itemprop="url">Django 部署(nginx)</a>
   </h1>
   <p class="article-author">By
     
       <a href="http://yoursite.com" title="milo">milo</a>
     </p>
   <p class="article-time">
-    <time datetime="2015-07-20T13:41:32.000Z" itemprop="datePublished">2015-07-20</time>
-    更新日期:<time datetime="2015-07-20T13:41:32.000Z" itemprop="dateModified">2015-07-20</time>
+    <time datetime="2015-07-20T13:44:33.000Z" itemprop="datePublished">2015-07-20</time>
+    更新日期:<time datetime="2015-07-20T13:44:33.000Z" itemprop="dateModified">2015-07-20</time>
     
   </p>
 </header>
@@ -87,8 +87,7 @@ Django 部署(nginx)1. 运行开发服务器测试cd zqxt # 进入项目 zqxt �
 		<ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#Django_部署(nginx)"><span class="toc-number">1.</span> <span class="toc-text">Django 部署(nginx)</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#1-_运行开发服务器测试"><span class="toc-number">1.1.</span> <span class="toc-text">1. 运行开发服务器测试</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2-_安装_nginx_和_需要的包"><span class="toc-number">1.2.</span> <span class="toc-text">2. 安装 nginx 和 需要的包</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#"><span class="toc-number">1.3.</span> <span class="toc-text"> </span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#3-_使用_gunicorn_/_uwsgi_来部署_(二选一）"><span class="toc-number">1.4.</span> <span class="toc-text">3. 使用 gunicorn / uwsgi 来部署 (二选一）</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#3-1_使用_gunicorn（纯Python实现的包）:"><span class="toc-number">1.4.1.</span> <span class="toc-text">3.1 使用 gunicorn（纯Python实现的包）:</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-2_使用_uwsgi（纯C语言实现的包）:"><span class="toc-number">1.4.2.</span> <span class="toc-text">3.2 使用 uwsgi（纯C语言实现的包）:</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#如果提示端口已经被占用:"><span class="toc-number">1.4.3.</span> <span class="toc-text">如果提示端口已经被占用:</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#4-_使用supervisor来管理进程"><span class="toc-number">1.5.</span> <span class="toc-text">4. 使用supervisor来管理进程</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#5-_配置_nginx"><span class="toc-number">1.6.</span> <span class="toc-text">5. 配置 nginx</span></a></li></ol></li></ol>
 		</div>
 		
-		<p>title: Django 部署(nginx)</p>
-<h1 id="Django_部署(nginx)">Django 部署(nginx)</h1><h2 id="1-_运行开发服务器测试">1. 运行开发服务器测试</h2><p>cd zqxt # 进入项目 zqxt 目录<br>python manage.py runserver<br>运行开发服务器测试，确保开发服务器下能正常打开网站。</p>
+		<h1 id="Django_部署(nginx)">Django 部署(nginx)</h1><h2 id="1-_运行开发服务器测试">1. 运行开发服务器测试</h2><p>cd zqxt # 进入项目 zqxt 目录<br>python manage.py runserver<br>运行开发服务器测试，确保开发服务器下能正常打开网站。</p>
 <h2 id="2-_安装_nginx_和_需要的包">2. 安装 nginx 和 需要的包</h2><p>2.1 安装 nginx 等软件</p>
 <p>ubuntu / Linux Mint 等，下面简写为 (ubuntu):</p>
 <pre class="brush:bash;toolbar:false">sudo&nbsp;apt-get&nbsp;install&nbsp;python-dev&nbsp;nginx</pre>
@@ -248,7 +247,7 @@ server&nbsp;{
 
 <div class="article-share" id="share">
 
-  <div data-url="http://yoursite.com/2015/07/20/Django/" data-title="milo&#39;s  blog" data-tsina="null" class="share clearfix">
+  <div data-url="http://yoursite.com/2015/07/20/Django/" data-title="Django 部署(nginx) | milo&#39;s  blog" data-tsina="null" class="share clearfix">
   </div>
 
 </div>
@@ -257,14 +256,14 @@ server&nbsp;{
 	
 <nav class="article-nav clearfix">
  
- <div class="prev" >
- <a href="/2015/07/20/welcoming/" title="welcoming">
-  <strong>PREVIOUS:</strong><br/>
-  <span>
-  welcoming</span>
+
+<div class="next">
+<a href="/2015/07/20/welcoming/"  title="welcoming">
+ <strong>NEXT:</strong><br/> 
+ <span>welcoming
+</span>
 </a>
 </div>
-
 
 </nav>
 
