@@ -80,7 +80,7 @@ openvpn一款在Linux网关服务器使用的开源的VPN软件，顾名思义�
     </p>
   <p class="article-time">
     <time datetime="2015-07-21T16:36:57.000Z" itemprop="datePublished">2015-07-22</time>
-    更新日期:<time datetime="2015-07-22T06:54:26.000Z" itemprop="dateModified">2015-07-22</time>
+    更新日期:<time datetime="2015-07-27T14:15:09.000Z" itemprop="dateModified">2015-07-27</time>
     
   </p>
 </header>
@@ -102,18 +102,7 @@ openvpn一款在Linux网关服务器使用的开源的VPN软件，顾名思义�
 <li><strong>OPENVPN： openvpn-2.3.0</strong></li>
 </ul>
 <hr>
-<h2 id="环境设置：">环境设置：</h2><p>vpn server: eth0:192.168.11.19,</p>
-<p>eth1:60.x.x.x </p>
-<p>vpn client: 任何地方 </p>
-<p>启动并清空iptables规则</p>
-<p>iptables -t NAT -F</p>
-<p>iptables -F</p>
-<p>service iptables save</p>
-<p>service iptables restart</p>
-<p>关闭SELINUX</p>
-<p>setenforce 0</p>
-<p>vi /etc/sysconfig/selinux</p>
-<p>SELINUX=disabled</p>
+<h2 id="环境设置：">环境设置：</h2><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><span class="line">vpn server: eth0:<span class="number">192.168</span>.11.19,</span><br><span class="line"></span><br><span class="line">eth1:<span class="number">60.</span>x.x.x </span><br><span class="line"></span><br><span class="line">vpn client: 任何地方 </span><br><span class="line"></span><br><span class="line">启动并清空iptables规则</span><br><span class="line"></span><br><span class="line">iptables -t NAT -F</span><br><span class="line"></span><br><span class="line">iptables -F</span><br><span class="line"></span><br><span class="line">service iptables save</span><br><span class="line"></span><br><span class="line">service iptables restart</span><br><span class="line"></span><br><span class="line"> </span><br><span class="line"></span><br><span class="line">关闭SELINUX</span><br><span class="line"></span><br><span class="line">setenforce <span class="number">0</span></span><br><span class="line"></span><br><span class="line">vi /etc/sysconfig/selinux</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">SELINUX=disabled</span><br></pre></td></tr></table></figure>
 <h1 id="server端：">server端：</h1><h2 id="一-网络设置">一.网络设置</h2><h3 id="1-开启服务器端路由转发功能">1.开启服务器端路由转发功能</h3><p>vi /etc/sysctl.conf</p>
 <p>net.ipv4.ip_forward = 1</p>
 <p>sysctl -p</p>
