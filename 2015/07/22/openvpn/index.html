@@ -55,7 +55,7 @@ openvpn一款在Linux网关服务器使用的开源的VPN软件，顾名思义�
 该软件可跨平台在在Linux、xBSD、Mac OS X与Windows间使用，并利用openssl作为加密库，使用加密证书或用户名/密码来实现身份验证，是一款不可多得的开源VPN解决方案。
 
 系统环境：C">
-<meta property="og:updated_time" content="2015-07-31T11:15:55.000Z">
+<meta property="og:updated_time" content="2015-07-31T11:18:11.000Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="CentOS 6.5 OpenVpn 部署">
 <meta name="twitter:description" content="CentOS 6.5下 OpenVPN部署
@@ -235,89 +235,114 @@ openvpn一款在Linux网关服务器使用的开源的VPN软件，顾名思义�
 <h2 id="环境设置：">环境设置：</h2><figure class="highlight groovy"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><span class="line">vpn <span class="string">server:</span> <span class="string">eth0:</span><span class="number">192.168</span>.11.19</span><br><span class="line"><span class="label"></span><br><span class="line">eth1:</span><span class="number">60.</span>x.x.x </span><br><span class="line"></span><br><span class="line">vpn <span class="string">client:</span> 任何地方 </span><br><span class="line"></span><br><span class="line">启动并清空iptables规则</span><br><span class="line"></span><br><span class="line">iptables -t NAT -F</span><br><span class="line"></span><br><span class="line">iptables -F</span><br><span class="line"></span><br><span class="line">service iptables save</span><br><span class="line"></span><br><span class="line">service iptables restart</span><br><span class="line"></span><br><span class="line"> </span><br><span class="line"></span><br><span class="line">关闭SELINUX</span><br><span class="line"></span><br><span class="line">setenforce <span class="number">0</span></span><br><span class="line"></span><br><span class="line">vi <span class="regexp">/etc/</span>sysconfig/selinux</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">SELINUX=disabled</span><br></pre></td></tr></table></figure>
 <h1 id="server端：">server端：</h1><h2 id="一-网络设置">一.网络设置</h2><h3 id="1-开启服务器端路由转发功能">1.开启服务器端路由转发功能</h3><figure class="highlight stylus"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">vi /etc/sysctl<span class="class">.conf</span></span><br><span class="line"></span><br><span class="line"></span><br><span class="line"></span><br><span class="line">net<span class="class">.ipv4</span><span class="class">.ip_forward</span> = <span class="number">1</span></span><br><span class="line"></span><br><span class="line"></span><br><span class="line">sysctl -p</span><br></pre></td></tr></table></figure>
 <h3 id="2-设置nat转发:">2.设置nat转发:</h3><figure class="highlight dns"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">注：保证VPN地址池可路由出外网</span><br><span class="line"></span><br><span class="line">iptables -t nat -<span class="keyword">A</span> POSTROUTING -s <span class="number">10.8.0.0</span>/24 -o eth0 -j MASQUERADE</span><br></pre></td></tr></table></figure>
-<h3 id="3-设置openvpn端口通过：">3.设置openvpn端口通过：</h3><figure class="highlight pf"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">iptables -A INPUT -p TCP --dport <span class="number">1194</span> -j ACCEPT</span><br><span class="line"></span><br><span class="line">iptables -A INPUT -p TCP --dport <span class="number">7505</span> -j ACCEPT</span><br><span class="line"></span><br><span class="line">iptables -A INPUT -m <span class="keyword">state</span> --state ESTABLISHED,RELATED -j ACCEPT</span><br><span class="line"></span><br><span class="line"> </span><br><span class="line"></span><br><span class="line">``</span><br><span class="line"><span class="comment">###4.时间同步(重要)：</span></span><br></pre></td></tr></table></figure>
-<p>ntpdate asia.pool.ntp.org</p>
-<figure class="highlight vala"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="preprocessor">##二.安装依赖库</span></span><br></pre></td></tr></table></figure>
-<p>yum install -y openssl openssl-devel lzo lzo-devel pam pam-devel automake pkgconfig</p>
-<figure class="highlight http"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"> </span><br><span class="line"></span><br><span class="line"><span class="vala"><span class="preprocessor">##三.安装openvpn:</span></span></span><br></pre></td></tr></table></figure>
-<p>wget -c <a href="http://swupdate.openvpn.org/community/releases/openvpn-2.3.0.tar.gz" target="_blank" rel="external">http://swupdate.openvpn.org/community/releases/openvpn-2.3.0.tar.gz</a></p>
-<p>tar zxvf openvpn-2.3.0.tar.gz</p>
-<p>cd openvpn-2.3.0</p>
-<p>./configure —prefix=/usr/local/openvpn</p>
-<p>make &amp;&amp; make install</p>
-<p>mkdir -p /etc/openvpn</p>
-<p>复制模板到openvpn配置目录：</p>
-<p>cp -rf sample /etc/openvpn/</p>
-<p>复制openvpn配置文件到主目录：</p>
-<p>cp /etc/openvpn/sample/sample-config-files/server.conf /etc/openvpn/</p>
-<p>cd ..</p>
-<figure class="highlight http"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"> </span><br><span class="line"></span><br><span class="line"><span class="vala"><span class="preprocessor">##四.下载easy-rsa:</span></span></span><br></pre></td></tr></table></figure>
-<p>注：该包用来制作ca证书，服务端证书，客户端证书,openvpn2.3.0该版本源码不包含easy-rsa,所以需要单独下载安装用来配合openvpn实现证书生成。</p>
-<p>wget -c <a href="https://github.com/OpenVPN/easy-rsa/archive/master.zip" target="_blank" rel="external">https://github.com/OpenVPN/easy-rsa/archive/master.zip</a></p>
-<p>unzip master</p>
-<p>mv easy-rsa-master easy-rsa</p>
-<p>cp -rf easy-rsa /etc/openvpn</p>
-<p>cd /etc/openvpn/easy-rsa/easy-rsa/2.0</p>
-<p>修改证书变量</p>
-<p>vi vars</p>
-<p>修改如下参数</p>
-<p>注：在后面生成服务端ca证书时，这里的配置会作为缺省配置</p>
-<p>export KEY_COUNTRY=”CN”</p>
-<p>export KEY_PROVINCE=”SX”</p>
-<p>export KEY_CITY=”Xian”</p>
-<p>export KEY_ORG=”example”</p>
-<p>export KEY_EMAIL=”user01@example.com”</p>
-<p>做SSL配置文件软链：</p>
-<p>ln -s openssl-1.0.0.cnf openssl.cnf</p>
-<p>修改vars文件可执行并调用</p>
-<p>chmod +x vars</p>
-<p>source ./vars</p>
-<p>NOTE: If you run ./clean-all, I will be doing a rm -rf on /etc/openvpn/easy-rsa/easy-rsa/2.0/keys</p>
-<p>注：也就是如果执行./clean-all，就会清空/etc/openvpn/easy-rsa/easy-rsa/2.0/keys下所有文件</p>
-<figure class="highlight vala"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line"><span class="preprocessor">##五、开始配置证书：</span></span><br><span class="line"></span><br><span class="line"><span class="preprocessor">###1.清空原有证书：</span></span><br><span class="line"></span><br><span class="line">./clean-all</span><br><span class="line"></span><br><span class="line">注：下面这个命令在第一次安装时可以运行，以后在添加完客户端后慎用，因为这个命令会清除所有已经生成的证书密钥，和上面的提示对应</span><br><span class="line"></span><br><span class="line"> </span><br><span class="line"></span><br><span class="line"><span class="preprocessor">###2.生成服务器端ca证书</span></span><br><span class="line"></span><br><span class="line">./build-ca</span><br><span class="line"></span><br><span class="line">注：由于之前做过缺省配置，这里一路回车即可</span><br><span class="line"></span><br><span class="line"> </span><br><span class="line"></span><br><span class="line"><span class="preprocessor">###3.生成服务器端密钥证书, 后面这个openvpn.example.com就是服务器名，也可以自定义</span></span><br><span class="line"></span><br><span class="line">------</span><br></pre></td></tr></table></figure>
-<p>./build-key-server openvpn.example.com</p>
-<p>Generating a 2048 bit RSA private key</p>
-<p>……………………………………………+++</p>
-<p>…………………………….+++</p>
-<p>writing new private key to ‘openvpn.example.com.key’</p>
-<p>You are about to be asked to enter information that will be</p>
-<p>incorporated</p>
-<p>into your certificate request.</p>
-<p>What you are about to enter is what is called a Distinguished Name or</p>
-<p>a DN.</p>
-<p>There are quite a few fields but you can leave some blank</p>
-<p>For some fields there will be a default value,</p>
-<p>If you enter ‘.’, the field will be left blank.</p>
-<p>Country Name (2 letter code) [CN]:</p>
-<p>State or Province Name (full name) [SX]:</p>
-<p>Locality Name (eg, city) [Xian]:</p>
-<p>Organization Name (eg, company) [example]:</p>
-<p>Organizational Unit Name (eg, section) []:</p>
-<p>Common Name (eg, your name or your server’s hostname)</p>
-<p>[openvpn.example.com]:</p>
-<p>Name [EasyRSA]:</p>
-<p>Email Address [user01@example.com]:</p>
-<p>Please enter the following ‘extra’ attributes</p>
-<p>to be sent with your certificate request</p>
-<p>A challenge password []:123456</p>
-<p>An optional company name []:example</p>
-<p>Using configuration from /etc/openvpn/easy-rsa/easy-rsa/2.0/openssl-1.0.0.cnf</p>
-<p>Check that the request matches the signature</p>
-<p>Signature ok</p>
-<p>The Subject’s Distinguished Name is as follows</p>
-<p>countryName :PRINTABLE:’CN’</p>
-<p>stateOrProvinceName :PRINTABLE:’SX’</p>
-<p>localityName :PRINTABLE:’Xian’</p>
-<p>organizationName :PRINTABLE:’example’</p>
-<p>commonName :PRINTABLE:’openvpn.example.com’</p>
-<p>name :PRINTABLE:’EasyRSA’</p>
-<p>emailAddress :IA5STRING:’user01@example.com’</p>
-<p>Certificate is to be certified until Jun 10 21:58:49 2023 GMT (3650 days)</p>
-<p>Sign the certificate? [y/n]:y</p>
-<p>1 out of 1 certificate requests certified, commit? [y/n]y</p>
-<p>Write out database with 1 new entries</p>
-<p>Data Base Updated</p>
-<h2 id="```">``` </h2><h3 id="4-生成所需客户端证书密钥文件：">4.生成所需客户端证书密钥文件：</h3><p>./build-key client1</p>
+<h3 id="3-设置openvpn端口通过：">3.设置openvpn端口通过：</h3><figure class="highlight pf"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">iptables -A INPUT -p TCP --dport <span class="number">1194</span> -j ACCEPT</span><br><span class="line"></span><br><span class="line">iptables -A INPUT -p TCP --dport <span class="number">7505</span> -j ACCEPT</span><br><span class="line"></span><br><span class="line">iptables -A INPUT -m <span class="keyword">state</span> --state ESTABLISHED,RELATED -j ACCEPT</span><br></pre></td></tr></table></figure>
+<h3 id="4-时间同步(重要)：">4.时间同步(重要)：</h3><figure class="highlight stylus"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ntpdate asia<span class="class">.pool</span><span class="class">.ntp</span><span class="class">.org</span></span><br></pre></td></tr></table></figure>
+<h2 id="二-安装依赖库">二.安装依赖库</h2><figure class="highlight cmake"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">yum <span class="keyword">install</span> -y openssl openssl-devel lzo lzo-devel pam pam-devel automake pkgconfig</span><br></pre></td></tr></table></figure>
+<h2 id="三-安装openvpn:">三.安装openvpn:</h2><figure class="highlight groovy"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line">wget -c <span class="string">http:</span><span class="comment">//swupdate.openvpn.org/community/releases/openvpn-2.3.0.tar.gz</span></span><br><span class="line"></span><br><span class="line">tar zxvf openvpn-<span class="number">2.3</span>.0.tar.gz</span><br><span class="line"></span><br><span class="line">cd openvpn-<span class="number">2.3</span>.0</span><br><span class="line"></span><br><span class="line">.<span class="regexp">/configure --prefix=/</span>usr<span class="regexp">/local/</span>openvpn</span><br><span class="line"></span><br><span class="line">make &amp;&amp; make install</span><br><span class="line"></span><br><span class="line">mkdir -p <span class="regexp">/etc/</span>openvpn</span><br><span class="line"></span><br><span class="line">复制模板到openvpn配置目录：</span><br><span class="line"></span><br><span class="line">cp -rf sample <span class="regexp">/etc/</span>openvpn/</span><br><span class="line"></span><br><span class="line">复制openvpn配置文件到主目录：</span><br><span class="line"></span><br><span class="line">cp <span class="regexp">/etc/</span>openvpn<span class="regexp">/sample/</span>sample-config-files<span class="regexp">/server.conf /</span>etc<span class="regexp">/openvpn/</span></span><br><span class="line"></span><br><span class="line">cd ..</span><br></pre></td></tr></table></figure>
+<h2 id="四-下载easy-rsa:">四.下载easy-rsa:</h2><figure class="highlight groovy"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br></pre></td><td class="code"><pre><span class="line">注：该包用来制作ca证书，服务端证书，客户端证书,openvpn2.3.0该版本源码不包含easy-rsa,所以需要单独下载安装用来配合openvpn实现证书生成。</span><br><span class="line"></span><br><span class="line">wget -c <span class="string">https:</span><span class="comment">//github.com/OpenVPN/easy-rsa/archive/master.zip</span></span><br><span class="line"></span><br><span class="line">unzip master</span><br><span class="line"></span><br><span class="line">mv easy-rsa-master easy-rsa</span><br><span class="line"></span><br><span class="line">cp -rf easy-rsa <span class="regexp">/etc/</span>openvpn</span><br><span class="line"></span><br><span class="line">cd <span class="regexp">/etc/</span>openvpn<span class="regexp">/easy-rsa/</span>easy-rsa/<span class="number">2.0</span></span><br><span class="line"></span><br><span class="line">修改证书变量</span><br><span class="line"></span><br><span class="line">vi vars</span><br><span class="line"></span><br><span class="line">修改如下参数</span><br><span class="line"></span><br><span class="line">注：在后面生成服务端ca证书时，这里的配置会作为缺省配置</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">export KEY_COUNTRY=<span class="string">"CN"</span></span><br><span class="line"></span><br><span class="line">export KEY_PROVINCE=<span class="string">"SX"</span></span><br><span class="line"></span><br><span class="line">export KEY_CITY=<span class="string">"Xian"</span></span><br><span class="line"></span><br><span class="line">export KEY_ORG=<span class="string">"example"</span></span><br><span class="line"></span><br><span class="line">export KEY_EMAIL=<span class="string">"user01@example.com"</span></span><br><span class="line"></span><br><span class="line"></span><br><span class="line"></span><br><span class="line">做SSL配置文件软链：</span><br><span class="line"></span><br><span class="line">ln -s openssl-<span class="number">1.0</span>.0.cnf openssl.cnf</span><br><span class="line"></span><br><span class="line">修改vars文件可执行并调用</span><br><span class="line"></span><br><span class="line">chmod +x vars</span><br><span class="line"></span><br><span class="line">source ./vars</span><br><span class="line"><span class="label"></span><br><span class="line"></span><br><span class="line"></span><br><span class="line">NOTE:</span> If you run .<span class="regexp">/clean-all, I will be doing a rm -rf on /</span>etc<span class="regexp">/openvpn/</span>easy-rsa<span class="regexp">/easy-rsa/</span><span class="number">2.0</span>/keys</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"></span><br><span class="line">注：也就是如果执行.<span class="regexp">/clean-all，就会清空/</span>etc<span class="regexp">/openvpn/</span>easy-rsa<span class="regexp">/easy-rsa/</span><span class="number">2.0</span>/keys下所有文件</span><br></pre></td></tr></table></figure>
+<h2 id="五、开始配置证书：">五、开始配置证书：</h2><h3 id="1-清空原有证书：">1.清空原有证书：</h3><p>./clean-all</p>
+<p>注：下面这个命令在第一次安装时可以运行，以后在添加完客户端后慎用，因为这个命令会清除所有已经生成的证书密钥，和上面的提示对应</p>
+<h3 id="2-生成服务器端ca证书">2.生成服务器端ca证书</h3><p>./build-ca</p>
+<p>注：由于之前做过缺省配置，这里一路回车即可</p>
+<h3 id="3-生成服务器端密钥证书,_后面这个openvpn-example-com就是服务器名，也可以自定义">3.生成服务器端密钥证书, 后面这个openvpn.example.com就是服务器名，也可以自定义</h3><hr>
+<pre><code>./build-<span class="keyword">key</span>-server openvpn.example.com
+
+
+Generating a <span class="number">2048</span> bit RSA <span class="keyword">private</span> <span class="keyword">key</span>
+
+...................................................+++
+
+..................................+++
+
+writing <span class="keyword">new</span> <span class="keyword">private</span> <span class="keyword">key</span> <span class="keyword">to</span> <span class="comment">'openvpn.example.com.key'</span>
+
+
+
+You are about <span class="keyword">to</span> be asked <span class="keyword">to</span> enter information that will be
+
+
+
+incorporated
+
+<span class="keyword">into</span> your certificate request.
+
+What you are about <span class="keyword">to</span> enter <span class="keyword">is</span> what <span class="keyword">is</span> called a Distinguished Name <span class="keyword">or</span>
+
+
+
+a DN.
+
+There are quite a few fields but you can leave some blank
+
+<span class="keyword">For</span> some fields there will be a <span class="keyword">default</span> value,
+
+<span class="keyword">If</span> you enter <span class="comment">'.', the field will be left blank.</span>
+
+
+
+Country Name (<span class="number">2</span> letter code) [CN]:
+
+State <span class="keyword">or</span> Province Name (full name) [SX]:
+
+Locality Name (eg, city) [Xian]:
+
+Organization Name (eg, company) [example]:
+
+Organizational Unit Name (eg, section) []:
+
+Common Name (eg, your name <span class="keyword">or</span> your server<span class="comment">'s hostname)</span>
+
+
+
+[openvpn.example.com]:
+
+Name [EasyRSA]:
+
+Email Address [user01@example.com]:
+
+
+
+Please enter the following <span class="comment">'extra' attributes</span>
+
+<span class="keyword">to</span> be sent <span class="keyword">with</span> your certificate request
+
+A challenge password []:<span class="number">123456</span>
+
+An <span class="keyword">optional</span> company name []:example
+
+<span class="keyword">Using</span> configuration <span class="keyword">from</span> /etc/openvpn/easy-rsa/easy-rsa/<span class="number">2.0</span>/openssl-<span class="number">1.0</span>.0.cnf
+
+Check that the request matches the signature
+
+Signature ok
+
+The Subject<span class="comment">'s Distinguished Name is as follows</span>
+
+countryName :PRINTABLE:<span class="comment">'CN'</span>
+
+stateOrProvinceName :PRINTABLE:<span class="comment">'SX'</span>
+
+localityName :PRINTABLE:<span class="comment">'Xian'</span>
+
+organizationName :PRINTABLE:<span class="comment">'example'</span>
+
+commonName :PRINTABLE:<span class="comment">'openvpn.example.com'</span>
+
+name :PRINTABLE:<span class="comment">'EasyRSA'</span>
+
+emailAddress :IA5STRING:<span class="comment">'user01@example.com'</span>
+
+Certificate <span class="keyword">is</span> <span class="keyword">to</span> be certified <span class="keyword">until</span> Jun <span class="number">10</span> <span class="number">21</span>:<span class="number">58</span>:<span class="number">49</span> <span class="number">2023</span> GMT (<span class="number">3650</span> days)
+
+Sign the certificate? [y/n]:y
+
+<span class="number">1</span> out <span class="keyword">of</span> <span class="number">1</span> certificate requests certified, commit? [y/n]y
+
+Write out database <span class="keyword">with</span> <span class="number">1</span> <span class="keyword">new</span> entries
+
+Data Base Updated
+</code></pre><hr>
+<h3 id="4-生成所需客户端证书密钥文件：">4.生成所需客户端证书密钥文件：</h3><p>./build-key client1</p>
 <p>./build-key client2</p>
 <p>注：这里与生成服务端证书配置类似，中间一步提示输入服务端密码，其他按照缺省提示一路回车即可。</p>
 <h3 id="5-再生成diffie_hellman参数，用于增强openvpn安全性（生成需要漫长等待）">5.再生成diffie hellman参数，用于增强openvpn安全性（生成需要漫长等待）</h3><p>./build-dh</p>
@@ -684,7 +709,7 @@ openvpn一款在Linux网关服务器使用的开源的VPN软件，顾名思义�
           <div class="post-toc">
             
             
-              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#CentOS_6-5下_OpenVPN部署"><span class="nav-number">1.</span> <span class="nav-text">CentOS 6.5下 OpenVPN部署</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#环境设置："><span class="nav-number">1.1.</span> <span class="nav-text">环境设置：</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#server端："><span class="nav-number">2.</span> <span class="nav-text">server端：</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#一-网络设置"><span class="nav-number">2.1.</span> <span class="nav-text">一.网络设置</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#1-开启服务器端路由转发功能"><span class="nav-number">2.1.1.</span> <span class="nav-text">1.开启服务器端路由转发功能</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-设置nat转发:"><span class="nav-number">2.1.2.</span> <span class="nav-text">2.设置nat转发:</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3-设置openvpn端口通过："><span class="nav-number">2.1.3.</span> <span class="nav-text">3.设置openvpn端口通过：</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#```"><span class="nav-number">2.2.</span> <span class="nav-text">``` </span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#4-生成所需客户端证书密钥文件："><span class="nav-number">2.2.1.</span> <span class="nav-text">4.生成所需客户端证书密钥文件：</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#5-再生成diffie_hellman参数，用于增强openvpn安全性（生成需要漫长等待）"><span class="nav-number">2.2.2.</span> <span class="nav-text">5.再生成diffie hellman参数，用于增强openvpn安全性（生成需要漫长等待）</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#6-打包keys"><span class="nav-number">2.2.3.</span> <span class="nav-text">6.打包keys</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#7-终端发送到客户端备用"><span class="nav-number">2.2.4.</span> <span class="nav-text">7.终端发送到客户端备用</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#六-配置openvpn_server："><span class="nav-number">2.3.</span> <span class="nav-text">六.配置openvpn server：</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#安装WINDOWS客户端（WIN7_64bit）"><span class="nav-number">3.</span> <span class="nav-text">安装WINDOWS客户端（WIN7 64bit）</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#1-下载客户端，并默认安装："><span class="nav-number">3.1.</span> <span class="nav-text">1.下载客户端，并默认安装：</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#2-将服务端打包文件解压，并将包内ca-crt、client1-crt、client1-key复制到客户端C:\Program_Files\OpenVPN\config下-"><span class="nav-number">3.2.</span> <span class="nav-text">2.将服务端打包文件解压，并将包内ca.crt、client1.crt、client1.key复制到客户端C:\Program Files\OpenVPN\config下.</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#3-在C:\Program_Files\OpenVPN\config下创建client-ovpn文件"><span class="nav-number">3.3.</span> <span class="nav-text">3.在C:\Program Files\OpenVPN\config下创建client.ovpn文件</span></a></li></ol></li></ol></div>
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#CentOS_6-5下_OpenVPN部署"><span class="nav-number">1.</span> <span class="nav-text">CentOS 6.5下 OpenVPN部署</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#环境设置："><span class="nav-number">1.1.</span> <span class="nav-text">环境设置：</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#server端："><span class="nav-number">2.</span> <span class="nav-text">server端：</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#一-网络设置"><span class="nav-number">2.1.</span> <span class="nav-text">一.网络设置</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#1-开启服务器端路由转发功能"><span class="nav-number">2.1.1.</span> <span class="nav-text">1.开启服务器端路由转发功能</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-设置nat转发:"><span class="nav-number">2.1.2.</span> <span class="nav-text">2.设置nat转发:</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3-设置openvpn端口通过："><span class="nav-number">2.1.3.</span> <span class="nav-text">3.设置openvpn端口通过：</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#4-时间同步(重要)："><span class="nav-number">2.1.4.</span> <span class="nav-text">4.时间同步(重要)：</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#二-安装依赖库"><span class="nav-number">2.2.</span> <span class="nav-text">二.安装依赖库</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#三-安装openvpn:"><span class="nav-number">2.3.</span> <span class="nav-text">三.安装openvpn:</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#四-下载easy-rsa:"><span class="nav-number">2.4.</span> <span class="nav-text">四.下载easy-rsa:</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#五、开始配置证书："><span class="nav-number">2.5.</span> <span class="nav-text">五、开始配置证书：</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#1-清空原有证书："><span class="nav-number">2.5.1.</span> <span class="nav-text">1.清空原有证书：</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-生成服务器端ca证书"><span class="nav-number">2.5.2.</span> <span class="nav-text">2.生成服务器端ca证书</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3-生成服务器端密钥证书,_后面这个openvpn-example-com就是服务器名，也可以自定义"><span class="nav-number">2.5.3.</span> <span class="nav-text">3.生成服务器端密钥证书, 后面这个openvpn.example.com就是服务器名，也可以自定义</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#4-生成所需客户端证书密钥文件："><span class="nav-number">2.5.4.</span> <span class="nav-text">4.生成所需客户端证书密钥文件：</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#5-再生成diffie_hellman参数，用于增强openvpn安全性（生成需要漫长等待）"><span class="nav-number">2.5.5.</span> <span class="nav-text">5.再生成diffie hellman参数，用于增强openvpn安全性（生成需要漫长等待）</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#6-打包keys"><span class="nav-number">2.5.6.</span> <span class="nav-text">6.打包keys</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#7-终端发送到客户端备用"><span class="nav-number">2.5.7.</span> <span class="nav-text">7.终端发送到客户端备用</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#六-配置openvpn_server："><span class="nav-number">2.6.</span> <span class="nav-text">六.配置openvpn server：</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#安装WINDOWS客户端（WIN7_64bit）"><span class="nav-number">3.</span> <span class="nav-text">安装WINDOWS客户端（WIN7 64bit）</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#1-下载客户端，并默认安装："><span class="nav-number">3.1.</span> <span class="nav-text">1.下载客户端，并默认安装：</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#2-将服务端打包文件解压，并将包内ca-crt、client1-crt、client1-key复制到客户端C:\Program_Files\OpenVPN\config下-"><span class="nav-number">3.2.</span> <span class="nav-text">2.将服务端打包文件解压，并将包内ca.crt、client1.crt、client1.key复制到客户端C:\Program Files\OpenVPN\config下.</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#3-在C:\Program_Files\OpenVPN\config下创建client-ovpn文件"><span class="nav-number">3.3.</span> <span class="nav-text">3.在C:\Program Files\OpenVPN\config下创建client.ovpn文件</span></a></li></ol></li></ol></div>
             
           </div>
           <div class="post-toc-indicator-bottom post-toc-indicator"></div>
